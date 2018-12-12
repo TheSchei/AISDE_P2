@@ -388,6 +388,7 @@ namespace WindowsFormsApp2
                         break;
                     case Typ.ZMIANA_PRĘDKOŚCI:
                         if (bufor != 0) bufor -= (czas - czasp);//jeśli się zmieni w trakcie laga to nic się nie dzieje, warunek powinien zadziałąć, bo może to nastąpić TYLKO po zdarzeniu koniec bufora
+                        zdarzenia.RemoveAt(0);
                         if (ilość_ramek > 0)
                         {
                             przelicz_przepustowość();
@@ -398,8 +399,9 @@ namespace WindowsFormsApp2
                                 temp += czas;//przesunięcie w czasie :p
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));
                             }//może starczy
+                            temp = czas+Rand.NextDouble() * 5 + 10;//obliczanie czasu możliwej zmiany prędkości
+                            zdarzenia.Add(new Zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, temp));//dodanie zmiany prędkości
                         }
-                        zdarzenia.RemoveAt(0);
                         break;
                     case Typ.WZMOWIENIE_POBIERANIA://pamiętać o zerowaniu pobierania
                         pobrano = 0;
@@ -420,7 +422,7 @@ namespace WindowsFormsApp2
         private void przelicz_przepustowość()
         {
             if (Rand.NextDouble() > 0.4F) Prędkość = 1;
-            else Prędkość = 0.4F;
+            else Prędkość = 0.05F;
         }
         private void usun_zdarzenie(Typ typ)
         {
