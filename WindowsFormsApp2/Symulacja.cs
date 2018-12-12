@@ -184,9 +184,11 @@ namespace WindowsFormsApp2
             //bufor 30 (3)
             //ramka 3 (0.5)
             float czas;
+            //float bufortemp;
             int liczba_ramek = Convert.ToInt32(czas_trwania2 / ramka);
+            bool pobieranie = true;
             losuj_przepustowosc();
-            float pobrane;
+            float pozostało_do_pobrania;
             czas = (float)rand.NextDouble() * 5 + 5;
             zdarzenia.Add(new zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, czas));
             czas= ramka / (przepustowość_nominalna * przepustowość_łącza);
@@ -198,34 +200,79 @@ namespace WindowsFormsApp2
                 switch (zdarzenia[0].typ)
                 {
                     case Typ.ZMIANA_PRĘDKOŚCI:
-                        pobrane = 1 - ((przepustowość_nominalna * przepustowość_łącza * (zdarzenia[0].czas - czas)) / ramka);//ile pozostalo do pobrania
-                        losuj_przepustowosc();
-                        czas = (ramka * pobrane) / (przepustowość_nominalna * przepustowość_łącza);//tymczasowa zmiana zastosowania zmiennej
+                        pozostało_do_pobrania = 1 - ((przepustowość_nominalna * przepustowość_łącza * (zdarzenia[0].czas - czas)) / ramka);//ile pozostalo do pobrania
+                        //losuj_przepustowosc();
+                        //bufortemp = bufor;
+                        bufor2 -= zdarzenia[0].czas - czas;
+                        if (pozostało_do_pobrania < 0)
+                        {
+                            //pozostało_do_pobrania++;//powinno załątwić jeśli jest przepełniony bufor, a prędkość zmieniła się po rozpoczęciu pobierania, czyli po odetkaniu bufora
+                            pozostało_do_pobrania = 1 - ((przepustowość_nominalna * przepustowość_łącza * ((zdarzenia[0].czas - czas) - (czas + (ramka / (przepustowość_nominalna * przepustowość_łącza))))) / ramka);
+                            losuj_przepustowosc();
+                            czas = (ramka * pozostało_do_pobrania) / (przepustowość_nominalna * przepustowość_łącza);//tymczasowa zmiana zastosowania zmiennej
+                        }
+                        else if (pobieranie == false)
+                        {
+                            losuj_przepustowosc();//ojezualeinba
+                            czas = zdarzenia[1].czas + (ramka / (przepustowość_nominalna * przepustowość_łącza));
+                        }
+                        else
+                        {
+                            losuj_przepustowosc();
+                            czas = (ramka * pozostało_do_pobrania) / (przepustowość_nominalna * przepustowość_łącza);
+                        }
+
+                        //if (pobieranie==false)
+                        //{
+                        //    if(pobrane<1)
+                        //    {
+
+                        //    }
+                        //    else
+                        //    {
+                        //        pobrane++;
+
+                        //    }
+                        //}
                         //zmien_czas(Typ.KONIEC_RAMKI, czas);
+                        usun_zdarzenie(Typ.KONIEC_RAMKI);
                         zdarzenia.Add(new zdarzenie(Typ.KONIEC_RAMKI, czas));
                         czas = zdarzenia[0].czas+((float)rand.NextDouble() * 5 + 5);//znowu recykling
                         zdarzenia.Add(new zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, czas));
                         czas = zdarzenia[0].czas;
                         zdarzenia.RemoveAt(0);
-                        //do raportu/rysowania mogę dodać tymczasową zmienną bufora, która będzie przechowywała katualny bufor
                         break;
 
                     case Typ.KONIEC_RAMKI:
-                        bufor2 += ramka;
-                        czas = zdarzenia[0].czas + (ramka / (przepustowość_nominalna * przepustowość_łącza));
+                        liczba_ramek--;
+                        bufor2 += ramka - (zdarzenia[0].czas - czas);
+                        if (bufor > 2.5F)
+                        {
+                            pobieranie = false;
+                            czas = zdarzenia[0].czas + (ramka / (przepustowość_nominalna * przepustowość_łącza)) + ramka;
+                        }
+                        else
+                        {
+                            pobieranie = true;
+                            czas = zdarzenia[0].czas + (ramka / (przepustowość_nominalna * przepustowość_łącza));
+                        }
                         zdarzenia.Add(new zdarzenie(Typ.KONIEC_RAMKI, czas));
                         czas = zdarzenia[0].czas;
+                        //bufortemp = bufor;
                         zdarzenia.RemoveAt(0);
                         break;
 
                     case Typ.KONIEC_BUFORA:
-                        bufor = 0;
+                        bufor2 = 0;
                         czas = zdarzenia[0].czas;
+                        //bufortemp = bufor;
                         zdarzenia.RemoveAt(0);
                         break;
                     default:
                         throw new Exception("ni ma");
                 }
+                //generacja raportu
+                //bufor = bufortemp;
             }
         }
         //private void zmien_czas(Typ typ, float czas)
