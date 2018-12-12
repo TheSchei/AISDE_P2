@@ -27,7 +27,7 @@ namespace WindowsFormsApp2
             richTextBox1.Clear();
             Symulacja sym = new Symulacja();
             //richTextBox1.Text += sym.symuluj() +"\n";
-            richTextBox1.Text += sym.Symuluj3() + "\n";
+            richTextBox1.Text += sym.symuluj() + "\n";
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
