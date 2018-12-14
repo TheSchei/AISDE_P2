@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -317,7 +318,13 @@ namespace WindowsFormsApp2
         private double temp;
         private bool pobieranie = true;
         private double pobrano = 0;
+        private List<System.Drawing.PointF> Punkty_prędkości = new List<System.Drawing.PointF>();
+        private List<System.Drawing.PointF> Punkty_bufora = new List<System.Drawing.PointF>();
         string raport = "RAPORT:\n";
+
+        public List<PointF> Punkty_Prędkości { get => Punkty_prędkości; set => Punkty_prędkości = value; }
+        public List<PointF> Punkty_Bufora { get => Punkty_bufora; set => Punkty_bufora = value; }
+
         public string symuluj()
         {
             przelicz_przepustowość();
@@ -327,7 +334,7 @@ namespace WindowsFormsApp2
             zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));//dodanie zdarzenia
             while (zdarzenia.Count > 0)
             {
-                if (czas>570)
+                if (czas>570)//test
                 {
                     czas += 0;
                 }
@@ -338,7 +345,7 @@ namespace WindowsFormsApp2
                 switch (zdarzenia[0].Typ)
                 {
                     case Typ.KONIEC_RAMKI:
-                        zdarzenia.RemoveAt(0);
+                        //zdarzenia.RemoveAt(0);//przeniesiono po dodaniu rysowania
                         pobrano = 0;
                         ilość_ramek--;
                         bufor += ramka;//powiększenie bufora
@@ -380,18 +387,24 @@ namespace WindowsFormsApp2
                             temp = bufor + czas;//nowy koniec bufora
                             zdarzenia.Add(new Zdarzenie(Typ.KONIEC_BUFORA, temp));
                         }
-
+                        Punkty_bufora.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)bufor));
+                        zdarzenia.RemoveAt(0);
                         break;
                     case Typ.KONIEC_BUFORA://istnieje tylko dla uładnienia wykresu
-                        zdarzenia.RemoveAt(0);//usunięcie zdarzenia
                         bufor = 0;//zerowanie bufora
+                        Punkty_bufora.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)bufor));
+                        zdarzenia.RemoveAt(0);//usunięcie zdarzenia
                         break;
                     case Typ.ZMIANA_PRĘDKOŚCI:
                         if (bufor != 0) bufor -= (czas - czasp);//jeśli się zmieni w trakcie laga to nic się nie dzieje, warunek powinien zadziałąć, bo może to nastąpić TYLKO po zdarzeniu koniec bufora
+                        Punkty_bufora.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)bufor));
+                        Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)Prędkość));
+                        przelicz_przepustowość();
+                        Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)Prędkość));
                         zdarzenia.RemoveAt(0);
                         if (ilość_ramek > 0)
                         {
-                            przelicz_przepustowość();
+                            //przelicz_przepustowość();//zakomentowane po dodaniu dodawania punktów
                             if (pobieranie)//jeśli trwa pobieranie to...
                             {
                                 usun_zdarzenie(Typ.KONIEC_RAMKI);//usunięcie aktualnego końca ramki
@@ -406,6 +419,7 @@ namespace WindowsFormsApp2
                     case Typ.WZMOWIENIE_POBIERANIA://pamiętać o zerowaniu pobierania
                         pobrano = 0;
                         bufor -= (czas - czasp);//bez warunku, bo pobieranie zatrzyma się tylko  gdzy bufor się przepełni
+                        Punkty_bufora.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)bufor));
                         pobieranie = true;
                         temp = czas + (ramka / (Przepustowość_nominalna * Prędkość));//obliczenie czasu pobrania ramki
                         zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));//dodanie zdarzenia
