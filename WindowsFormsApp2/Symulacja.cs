@@ -407,7 +407,6 @@ namespace WindowsFormsApp2
                         Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)Prędkość));
                         przelicz_przepustowość();
                         Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)Prędkość));
-                        zdarzenia.RemoveAt(0);
                         if (ilość_ramek > 0)
                         {
                             //przelicz_przepustowość();//zakomentowane po dodaniu dodawania punktów
@@ -426,6 +425,7 @@ namespace WindowsFormsApp2
                             Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)Prędkość));
                             Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, 0));
                         }
+                        zdarzenia.RemoveAt(0);
                         break;
                     case Typ.WZMOWIENIE_POBIERANIA://pamiętać o zerowaniu pobierania
                         pobrano = 0;
