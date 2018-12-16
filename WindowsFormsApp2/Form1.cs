@@ -28,11 +28,37 @@ namespace WindowsFormsApp2
             Symulacja sym = new Symulacja();
             //richTextBox1.Text += sym.symuluj() +"\n";
             richTextBox1.Text += sym.symuluj() + "\n";
+            rysuj(sym);
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
 
+        }
+        //836x310
+        private void rysuj(Symulacja symul)
+        {
+            Bitmap bitmap = new Bitmap(@"..\..\uklad.bmp");
+            Graphics graph = Graphics.FromImage(bitmap);
+            PointF[] Prędkość = symul.Punkty_Prędkości.ToArray();
+            PointF[] Bufor = symul.Punkty_Bufora.ToArray();
+            obrazek.Image = bitmap;
+            for (int i=0; i<Prędkość.Length; i++)
+            {
+                //50 to 283
+                Prędkość[i].Y = 283 - (Prędkość[i].Y*233);
+                Prędkość[i].X = 16 + (Prędkość[i].X * (764/(float)symul.Czas));
+            }
+            for (int i=0; i<Bufor.Length; i++)
+            {
+                //Bufor[i].X = 16 + (Bufor[i].X * (float)(symul.Czas / 764));
+                Bufor[i].X = 16 + (Bufor[i].X * (764/(float)(symul.Czas)));
+                Bufor[i].Y = 283 - (Bufor[i].Y/((float)symul.BUFOR_MAX)) * 233;
+            }
+            graph.DrawLines(new Pen(Color.Red), Prędkość);
+            graph.DrawLines(new Pen(Color.Green), Bufor);
+            graph.DrawString(Convert.ToString(symul.BUFOR_MAX)+"s", new Font("Segoe UI Light", 10), Brushes.Black, 57, 6.2F);
+            graph.DrawString(Convert.ToString((int)symul.Czas) + "s", new Font("Segoe UI Light", 10), Brushes.Black, 730, 288);
         }
     }
 }

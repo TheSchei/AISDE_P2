@@ -310,24 +310,28 @@ namespace WindowsFormsApp2
         private List<Zdarzenie> zdarzenia = new List<Zdarzenie>();
         private double Przepustowość_nominalna=10;//sekund filmu na sekundę
         private double Prędkość;
-        private int ilość_ramek = 120;
-        private double ramka = 5;//sekund filmu
+        private int ilość_ramek = 600;//120;
+        private double ramka = 0.5F;//5;//sekund filmu
         private Random Rand=new Random();
         private double bufor=0;
         private double czas = 0, czasp=0;
         private double temp;
         private bool pobieranie = true;
         private double pobrano = 0;
+        private double BUFOR_max = 30;
         private List<System.Drawing.PointF> Punkty_prędkości = new List<System.Drawing.PointF>();
         private List<System.Drawing.PointF> Punkty_bufora = new List<System.Drawing.PointF>();
         string raport = "RAPORT:\n";
 
         public List<PointF> Punkty_Prędkości { get => Punkty_prędkości; set => Punkty_prędkości = value; }
         public List<PointF> Punkty_Bufora { get => Punkty_bufora; set => Punkty_bufora = value; }
+        public double Czas { get => czas; set => czas = value; }
+        public double BUFOR_MAX { get => BUFOR_max; set => BUFOR_max = value; }
 
         public string symuluj()
         {
             przelicz_przepustowość();
+            Punkty_prędkości.Add(new System.Drawing.PointF(0, (float)Prędkość));
             temp = Rand.NextDouble() * 5 + 10;//obliczanie czasu pierwszej możliwej zmiany prędkości
             zdarzenia.Add(new Zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, temp));//dodanie pierwszej zmiany prędkości
             temp = ramka / (Przepustowość_nominalna * Prędkość);//obliczenie czasu pobrania pierwszej ramki
@@ -351,7 +355,9 @@ namespace WindowsFormsApp2
                         bufor += ramka;//powiększenie bufora
                         if (ilość_ramek > 0)
                         {
-                            if (bufor > 25)//przepełnienie bufora
+                            //if (bufor > BUFOR_MAX-ramka)
+                            //if (bufor > 25)//przepełnienie bufora
+                            if (bufor > (BUFOR_max-ramka))//przepełnienie bufora
                             {
                                 usun_zdarzenie(Typ.KONIEC_BUFORA);
                                 bufor -= (czas - czasp);//zmniejszenie bufora
@@ -412,8 +418,13 @@ namespace WindowsFormsApp2
                                 temp += czas;//przesunięcie w czasie :p
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));
                             }//może starczy
-                            temp = czas+Rand.NextDouble() * 5 + 10;//obliczanie czasu możliwej zmiany prędkości
+                            temp = czas + Rand.NextDouble() * 5 + 10;//obliczanie czasu możliwej zmiany prędkości
                             zdarzenia.Add(new Zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, temp));//dodanie zmiany prędkości
+                        }
+                        else
+                        {
+                            Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)Prędkość));
+                            Punkty_prędkości.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, 0));
                         }
                         break;
                     case Typ.WZMOWIENIE_POBIERANIA://pamiętać o zerowaniu pobierania
