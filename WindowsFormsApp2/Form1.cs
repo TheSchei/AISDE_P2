@@ -53,7 +53,7 @@ namespace WindowsFormsApp2
             {
                 //Bufor[i].X = 16 + (Bufor[i].X * (float)(symul.Czas / 764));
                 Bufor[i].X = 16 + (Bufor[i].X * (764/(float)(symul.Czas)));
-                Bufor[i].Y = 283 - (Bufor[i].Y/((float)symul.BUFOR_MAX)) * 233;
+                Bufor[i].Y = 283 - ((Bufor[i].Y/((float)symul.BUFOR_MAX)) * 233);
             }
             graph.DrawLines(new Pen(Color.Red), Prędkość);
             graph.DrawLines(new Pen(Color.Green), Bufor);

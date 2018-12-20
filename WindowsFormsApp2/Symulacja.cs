@@ -308,10 +308,10 @@ namespace WindowsFormsApp2
         //    }
 
         private List<Zdarzenie> zdarzenia = new List<Zdarzenie>();
-        private double Przepustowość_nominalna=10;//sekund filmu na sekundę
+        private double Przepustowość_nominalna=6;//sekund filmu na sekundę
         private double Prędkość;
         private int ilość_ramek = 600;//120;
-        private double ramka = 0.5F;//5;//sekund filmu
+        private double ramka = 0.5;//5;//sekund filmu
         private Random Rand=new Random();
         private double bufor=0;
         private double czas = 0, czasp=0;
@@ -338,20 +338,18 @@ namespace WindowsFormsApp2
             zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));//dodanie zdarzenia
             while (zdarzenia.Count > 0)
             {
-                if (czas>570)//test
-                {
-                    czas += 0;
-                }
                 zdarzenia.Sort(((x, y) => x.Czas.CompareTo(y.Czas)));//sortowanko
                 raport += Convert.ToString(zdarzenia[0].Typ) + ":\t\t\t";
                 czas = zdarzenia[0].Czas;//ustawienie czasu//prawdopodobnie będę musiał to przenieść do casów, może się przydać "poprzedni czas"
-                pobrano += ((czas - czasp) / (ramka / (Przepustowość_nominalna * Prędkość)))/ramka;//postęp pobierania aktualnej ramki
+                pobrano += ((czas - czasp) / (ramka / (Przepustowość_nominalna * Prędkość)));///ramka;//postęp pobierania aktualnej ramki
                 switch (zdarzenia[0].Typ)
                 {
                     case Typ.KONIEC_RAMKI:
                         //zdarzenia.RemoveAt(0);//przeniesiono po dodaniu rysowania
                         pobrano = 0;
                         ilość_ramek--;
+                        if (bufor!=0) bufor -= (czas - czasp);
+                        Punkty_bufora.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)bufor));//dodane dzisiaj
                         bufor += ramka;//powiększenie bufora
                         if (ilość_ramek > 0)
                         {
@@ -360,7 +358,7 @@ namespace WindowsFormsApp2
                             if (bufor > (BUFOR_max-ramka))//przepełnienie bufora
                             {
                                 usun_zdarzenie(Typ.KONIEC_BUFORA);
-                                bufor -= (czas - czasp);//zmniejszenie bufora
+                                //bufor -= (czas - czasp);//zmniejszenie bufora
                                 temp = bufor + czas;//nowy koniec bufora
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_BUFORA, temp));
                                 pobieranie = false;
@@ -369,7 +367,7 @@ namespace WindowsFormsApp2
                             }
                             else if (bufor != ramka)//bufor normalny
                             {
-                                bufor -= (czas - czasp);//zmniejszenie bufora
+                                //bufor -= (czas - czasp);//zmniejszenie bufora
                                 //bufor += ramka;//powiększenie bufora
                                 usun_zdarzenie(Typ.KONIEC_BUFORA);
                                 temp = bufor + czas;//nowy koniec bufora
@@ -389,7 +387,7 @@ namespace WindowsFormsApp2
                         else//ostatnia zmiana końca bufora
                         {
                             usun_zdarzenie(Typ.KONIEC_BUFORA);
-                            bufor -= (czas - czasp);//zmniejszenie bufora
+                            //bufor -= (czas - czasp);//zmniejszenie bufora
                             temp = bufor + czas;//nowy koniec bufora
                             zdarzenia.Add(new Zdarzenie(Typ.KONIEC_BUFORA, temp));
                         }
@@ -414,7 +412,7 @@ namespace WindowsFormsApp2
                             {
                                 usun_zdarzenie(Typ.KONIEC_RAMKI);//usunięcie aktualnego końca ramki
                                 temp = (ramka * (1 - pobrano)) / (Przepustowość_nominalna * Prędkość); //czas za ile pobierzesię reszta
-                                temp += czas;//przesunięcie w czasie :p
+                                temp += zdarzenia[0].Czas;//przesunięcie w czasie :p
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));
                             }//może starczy
                             temp = czas + Rand.NextDouble() * 5 + 10;//obliczanie czasu możliwej zmiany prędkości
@@ -446,7 +444,7 @@ namespace WindowsFormsApp2
         }
         private void przelicz_przepustowość()
         {
-            if (Rand.NextDouble() > 0.4F) Prędkość = 1;
+            if (Rand.NextDouble() > 0.3F) Prędkość = 1;
             else Prędkość = 0.05F;
         }
         private void usun_zdarzenie(Typ typ)
