@@ -28,17 +28,20 @@ namespace WindowsFormsApp2
         private double BUFOR_max = 30;
         private List<System.Drawing.PointF> Punkty_prędkości = new List<System.Drawing.PointF>();
         private List<System.Drawing.PointF> Punkty_bufora = new List<System.Drawing.PointF>();
+        private List<System.Drawing.PointF> Punkty_jakości = new List<System.Drawing.PointF>();
         string raport = "RAPORT:\n";
 
         public List<PointF> Punkty_Prędkości { get => Punkty_prędkości; set => Punkty_prędkości = value; }
         public List<PointF> Punkty_Bufora { get => Punkty_bufora; set => Punkty_bufora = value; }
         public double Czas { get => czas; set => czas = value; }
         public double BUFOR_MAX { get => BUFOR_max; set => BUFOR_max = value; }
+        public List<PointF> Punkty_Jakości { get => Punkty_jakości; set => Punkty_jakości = value; }
 
         public string symuluj()
         {
             przelicz_przepustowość();//do wywalenia
             //Zainicjuj_dane();//miejsce na modyfikacje
+            Punkty_jakości.Add(new System.Drawing.PointF(0, (float)jakosc));
             Punkty_prędkości.Add(new System.Drawing.PointF(0, (float)Prędkość));
             temp = Rand.NextDouble() * 5 + 10;//obliczanie czasu pierwszej możliwej zmiany prędkości
             zdarzenia.Add(new Zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, temp));//dodanie pierwszej zmiany prędkości
@@ -53,6 +56,9 @@ namespace WindowsFormsApp2
                 switch (zdarzenia[0].Typ)
                 {
                     case Typ.KONIEC_RAMKI:
+                        //Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
+                        //ustaw_jakość();
+                        //Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
                         pobrano = 0;
                         ilość_ramek--;
                         if (bufor!=0) bufor -= (czas - czasp);
