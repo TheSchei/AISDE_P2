@@ -1,0 +1,23 @@
+1. zrobiæ losowanie prêdkoœci na podstawie:
+	a) losuje siê pierwsza pedkoœæ i pierwsza pochodna
+	b) losowanie drugiej pochodnej(zmiany zmiany) - du¿e P ma³y wzrost; ma³e P Du¿y spadek (EX dodatnia)
+	c) zwiêkszyæ czêstotkiwoœæ zmian (z przednai³y 5-10s na 0.5-1s)
+2. obliczanie jakoœci pobierania na podstawie
+	dostêpne jakoœci np. 0,5(360p)	1(720p)	2(1080p60)
+	
+	pierwsze onbliczenie jakoœci na posdtawie ile da radê(prêdkoœæ/chunk>chunk)
+	zwiêkszenie prêdkoœci pobierania gdy bufor>buformax/2 && prêdkoœæ/chunk>chunk(dostosowanie odpowiedniej)
+	Analogicznie zmniejszenie
+
+
+
+
+
+************
+
+
+
+dodaæ jeszcze rysowanie i skalowanie
+odkomentowaæ i przetestowaæ
+zmieniæ czêstotliwoœ zmian
+dostosowaæ dane
