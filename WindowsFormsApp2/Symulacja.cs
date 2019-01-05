@@ -16,7 +16,7 @@ namespace WindowsFormsApp2
         private double Prędkość;
         private double pierwsza_pochodna=0;
         private double druga_pochodna;
-        private int ilość_ramek = 600;//120;
+        private int ilość_ramek = 120;//120;
         private double ramka = 0.5;//5;//sekund filmu
         private double jakosc;//dodać funkcje zainicjuj jakosc
         private Random Rand=new Random();
@@ -39,26 +39,30 @@ namespace WindowsFormsApp2
 
         public string symuluj()
         {
-            przelicz_przepustowość();//do wywalenia
-            //Zainicjuj_dane();//miejsce na modyfikacje
+            if (ilość_ramek<118)
+            {
+                ilość_ramek += 0;
+            }
+            //przelicz_przepustowość();//do wywalenia
+            Zainicjuj_dane();
             Punkty_jakości.Add(new System.Drawing.PointF(0, (float)jakosc));
             Punkty_prędkości.Add(new System.Drawing.PointF(0, (float)Prędkość));
-            temp = Rand.NextDouble() * 5 + 10;//obliczanie czasu pierwszej możliwej zmiany prędkości
+            //temp = Rand.NextDouble() * 5 + 10;//obliczanie czasu pierwszej możliwej zmiany prędkości
+            temp = Rand.NextDouble() * 0.5 + 0.5;
             zdarzenia.Add(new Zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, temp));//dodanie pierwszej zmiany prędkości
-            temp = ramka/**jakosc*/ / (Przepustowość_nominalna * Prędkość);//obliczenie czasu pobrania pierwszej ramki
+            temp = ramka*jakosc / (Przepustowość_nominalna * Prędkość);//obliczenie czasu pobrania pierwszej ramki
             zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));//dodanie zdarzenia
             while (zdarzenia.Count > 0)
             {
                 zdarzenia.Sort(((x, y) => x.Czas.CompareTo(y.Czas)));//sortowanko
                 raport += Convert.ToString(zdarzenia[0].Typ) + ":\t\t\t";
-                czas = zdarzenia[0].Czas;//ustawienie czasu//prawdopodobnie będę musiał to przenieść do casów, może się przydać "poprzedni czas"
-                pobrano += ((czas - czasp) / (ramka/**jakosc*/ / (Przepustowość_nominalna * Prędkość)));///ramka;//postęp pobierania aktualnej ramki
+                czas = zdarzenia[0].Czas;//ustawienie czasu
+                pobrano += ((czas - czasp) / (ramka*jakosc / (Przepustowość_nominalna * Prędkość)));///ramka;//postęp pobierania aktualnej ramki
                 switch (zdarzenia[0].Typ)
                 {
                     case Typ.KONIEC_RAMKI:
-                        //Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
-                        //ustaw_jakość();
-                        //Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
+                        Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
+                        ustaw_jakość();
                         pobrano = 0;
                         ilość_ramek--;
                         if (bufor!=0) bufor -= (czas - czasp);
@@ -75,21 +79,24 @@ namespace WindowsFormsApp2
                                 pobieranie = false;
                                 temp = czas + ramka;//czas wznowienia pobierania po oddtworzeniu JEDNEJ ramki
                                 zdarzenia.Add(new Zdarzenie(Typ.WZMOWIENIE_POBIERANIA, temp));
+                                Punkty_jakości.Add(new System.Drawing.PointF((float)czas, 0));
                             }
                             else if (bufor != ramka)//bufor normalny
                             {
                                 usun_zdarzenie(Typ.KONIEC_BUFORA);
                                 temp = bufor + czas;//nowy koniec bufora
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_BUFORA, temp));
-                                temp = czas + (ramka/**jakosc*/ / (Przepustowość_nominalna * Prędkość));//nowy koniec ramki
+                                temp = czas + (ramka*jakosc / (Przepustowość_nominalna * Prędkość));//nowy koniec ramki
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));
+                                Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
                             }
                             else//pusty bufor
                             {
                                 temp = bufor + czas;//nowy koniec bufora
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_BUFORA, temp));
-                                temp = czas + (ramka/**jakosc*/ / (Przepustowość_nominalna * Prędkość));//nowy koniec ramki
+                                temp = czas + (ramka*jakosc / (Przepustowość_nominalna * Prędkość));//nowy koniec ramki
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));
+                                Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
                             }
                         }
                         else//ostatnia zmiana końca bufora
@@ -117,11 +124,12 @@ namespace WindowsFormsApp2
                             if (pobieranie)//jeśli trwa pobieranie to...
                             {
                                 usun_zdarzenie(Typ.KONIEC_RAMKI);//usunięcie aktualnego końca ramki
-                                temp = (ramka/**jakosc*/ * (1 - pobrano)) / (Przepustowość_nominalna * Prędkość); //czas za ile pobierzesię reszta
+                                temp = (ramka*jakosc * (1 - pobrano)) / (Przepustowość_nominalna * Prędkość); //czas za ile pobierzesię reszta
                                 temp += zdarzenia[0].Czas;//przesunięcie w czasie :p
                                 zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));
                             }//może starczy
-                            temp = czas + Rand.NextDouble() * 5 + 10;//obliczanie czasu możliwej zmiany prędkości
+                            //temp = czas + Rand.NextDouble() * 5 + 10;//obliczanie czasu możliwej zmiany prędkości
+                            temp = czas + Rand.NextDouble() * 0.5 + 0.5;
                             zdarzenia.Add(new Zdarzenie(Typ.ZMIANA_PRĘDKOŚCI, temp));//dodanie zmiany prędkości
                         }
                         else
@@ -133,10 +141,13 @@ namespace WindowsFormsApp2
                         break;
                     case Typ.WZMOWIENIE_POBIERANIA://pamiętać o zerowaniu pobierania
                         pobrano = 0;
+                        Punkty_jakości.Add(new System.Drawing.PointF((float)czas, 0));
+                        ustaw_jakość();
+                        Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
                         bufor -= (czas - czasp);//bez warunku, bo pobieranie zatrzyma się tylko  gdzy bufor się przepełni
                         Punkty_bufora.Add(new System.Drawing.PointF((float)zdarzenia[0].Czas, (float)bufor));
                         pobieranie = true;
-                        temp = czas + (ramka/**jakosc*/ / (Przepustowość_nominalna * Prędkość));//obliczenie czasu pobrania ramki
+                        temp = czas + (ramka*jakosc / (Przepustowość_nominalna * Prędkość));//obliczenie czasu pobrania ramki
                         zdarzenia.Add(new Zdarzenie(Typ.KONIEC_RAMKI, temp));//dodanie zdarzenia
                         zdarzenia.RemoveAt(0);
                         break;
@@ -150,28 +161,28 @@ namespace WindowsFormsApp2
         }
         private void przelicz_przepustowość()
         {
-            if (Rand.NextDouble() > 0.3) Prędkość = 1;
-            else Prędkość = 0.05;
-            //////nowa
-            //if (Rand.NextDouble()>0.05)//95% szans na mały wzrost
-            //     druga_pochodna = Rand.NextDouble() / 100;
-            //else
-            //    druga_pochodna = Rand.NextDouble() / -10;
+            //if (Rand.NextDouble() > 0.3) Prędkość = 1;
+            //else Prędkość = 0.05;
+            ////nowa
+            if (Rand.NextDouble() > 0.05)//95% szans na mały wzrost
+                druga_pochodna = Rand.NextDouble() / 100;
+            else
+                druga_pochodna = Rand.NextDouble() / -10;
 
-            //pierwsza_pochodna += druga_pochodna;
-            //if (pierwsza_pochodna > 1) pierwsza_pochodna = 1;//zabezpieczenia przed przesadą, dobrać parametry
-            //else if (pierwsza_pochodna < -1) pierwsza_pochodna = -1;
-            //Prędkość += pierwsza_pochodna;
-            //if (Prędkość > 1)
-            //{
-            //    Prędkość = 1;
-            //    pierwsza_pochodna = 0;
-            //}//zabezpieczenia przed przesadą, dobrać parametry
-            //else if (Prędkość < 0)
-            //{
-            //    Prędkość = 0;
-            //    pierwsza_pochodna = 0;
-            //}
+            pierwsza_pochodna += druga_pochodna;
+            if (pierwsza_pochodna > 0.1) pierwsza_pochodna = 0.1;//zabezpieczenia przed przesadą, dobrać parametry
+            else if (pierwsza_pochodna < -0.1) pierwsza_pochodna = -0.1;
+            Prędkość += pierwsza_pochodna;
+            if (Prędkość > 1)
+            {
+                Prędkość = 1;
+                pierwsza_pochodna = 0;
+            }//zabezpieczenia przed przesadą, dobrać parametry
+            else if (Prędkość < 0)
+            {
+                Prędkość = 0;
+                pierwsza_pochodna = 0;
+            }
         }
         private void Zainicjuj_dane()
         {

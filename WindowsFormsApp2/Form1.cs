@@ -42,7 +42,7 @@ namespace WindowsFormsApp2
             Graphics graph = Graphics.FromImage(bitmap);
             PointF[] Prędkość = symul.Punkty_Prędkości.ToArray();
             PointF[] Bufor = symul.Punkty_Bufora.ToArray();
-            //PointF[] jakość = symul.Punkty_Jakości.ToArray();
+            PointF[] jakość = symul.Punkty_Jakości.ToArray();
             obrazek.Image = bitmap;
             for (int i=0; i<Prędkość.Length; i++)
             {
@@ -55,14 +55,14 @@ namespace WindowsFormsApp2
                 Bufor[i].X = 16 + (Bufor[i].X * (764/(float)(symul.Czas)));
                 Bufor[i].Y = 283 - ((Bufor[i].Y/((float)symul.BUFOR_MAX)) * 233);
             }
-            //for (int i = 0; i < jakość.Length; i++)
-            //{
-            //    jakość[i].X = 16 + (jakość[i].X * (764 / (float)(symul.Czas)));
-            //    jakość[i].Y = 283 - ((jakość[i].Y / 4) * 233);
-            //}
+            for (int i = 0; i < jakość.Length; i++)
+            {
+                jakość[i].X = 16 + (jakość[i].X * (764 / (float)(symul.Czas)));
+                jakość[i].Y = 283 - ((jakość[i].Y / 4) * 233);
+            }
             graph.DrawLines(new Pen(Color.Red), Prędkość);
             graph.DrawLines(new Pen(Color.Green), Bufor);
-            //graph.DrawLines(new Pen(Color.Blue), jakość);
+            graph.DrawLines(new Pen(Color.Blue), jakość);
             graph.DrawString(Convert.ToString(symul.BUFOR_MAX)+"s", new Font("Segoe UI Light", 10), Brushes.Black, 57, 6.2F);
             graph.DrawString(Convert.ToString((int)symul.Czas) + "s", new Font("Segoe UI Light", 10), Brushes.Black, 730, 288);
         }
