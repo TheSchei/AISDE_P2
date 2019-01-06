@@ -16,7 +16,7 @@ namespace WindowsFormsApp2
         private double Prędkość;
         private double pierwsza_pochodna=0;
         private double druga_pochodna;
-        private int ilość_ramek = 120;//120;
+        private int ilość_ramek = 600;//120;
         private double ramka = 0.5;//5;//sekund filmu
         private double jakosc;//dodać funkcje zainicjuj jakosc
         private Random Rand=new Random();
@@ -79,7 +79,8 @@ namespace WindowsFormsApp2
                                 pobieranie = false;
                                 temp = czas + ramka;//czas wznowienia pobierania po oddtworzeniu JEDNEJ ramki
                                 zdarzenia.Add(new Zdarzenie(Typ.WZMOWIENIE_POBIERANIA, temp));
-                                Punkty_jakości.Add(new System.Drawing.PointF((float)czas, 0));
+                                //Punkty_jakości.Add(new System.Drawing.PointF((float)czas, 0));
+                                Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
                             }
                             else if (bufor != ramka)//bufor normalny
                             {
@@ -141,7 +142,8 @@ namespace WindowsFormsApp2
                         break;
                     case Typ.WZMOWIENIE_POBIERANIA://pamiętać o zerowaniu pobierania
                         pobrano = 0;
-                        Punkty_jakości.Add(new System.Drawing.PointF((float)czas, 0));
+                        //Punkty_jakości.Add(new System.Drawing.PointF((float)czas, 0));
+                        Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
                         ustaw_jakość();
                         Punkty_jakości.Add(new System.Drawing.PointF((float)czas, (float)jakosc));
                         bufor -= (czas - czasp);//bez warunku, bo pobieranie zatrzyma się tylko  gdzy bufor się przepełni
@@ -203,7 +205,7 @@ namespace WindowsFormsApp2
         }
         private void ustaw_jakość()//powinno działąć, anie nie tetowałem
         {
-            int i = 1;
+            int i=0;
             if (bufor>BUFOR_MAX/2)
             {
                 for (int j = 0; j < jakosci.Length; j++)
@@ -215,7 +217,7 @@ namespace WindowsFormsApp2
                     }
                 }
             }
-            jakosc = jakosci[0];
+            jakosc = jakosci[i];
             for (int j = i; j < jakosci.Length; j++)
             {
                 if (jakosci[j] > Prędkość * Przepustowość_nominalna) break;
